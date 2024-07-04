@@ -1,0 +1,302 @@
+@startuml
+'shopping website
+
+@startuml
+
+abstract class User {
+    -userID: int
+    -name: String
+    -email: String
+    -password: String
+    -contact: String
+    -address: String
+    +updateProfile()
+}
+
+class Administrator{
+    'manageUserAccounts
+    +createUserAccount()
+    +editUserAccount()
+    +deleteUserAccount()
+    +setUserPermissions()
+    +monitorUserActivity()
+    +manageUserGroups()
+    'manageCommodities
+    +manageCommdityCategories()
+    +manageCommodities()
+    'manageOrders
+    +viewOrders()
+    +processOrders()
+    +trackOrderStatus()
+    +generateOrderReports()
+    +manageReviews()
+    +managePayments()
+    +createCoupons()
+    +managePromotions()
+    'manageWebContent
+    +editContent()
+    +manageAnnouncements()
+    +manageAdvertisements()
+    +setSEO()#searchEngineOptimization
+    'manageSystem
+    +setSecurity()
+    +viewLogs()
+    +monitorSystem()
+    +backupData()
+    +restoreData()
+    +generateDataReports()
+    +viewDataReports()
+}
+
+class Customer{
+    -cart: ArrayList<Commodity>
+    -orders: ArrayList<Order>
+    -reviews: ArrayList<Review>
+    -coupons: ArrayList<Coupon>
+    -chat: ArrayList<Chat>
+    -payment: ArrayList<Payment>
+    -deliveryInfo: ArrayList<DeliveryInfo>
+    -notifications: ArrayList<Notification>
+
+    +addOrder(Order order)
+    +deleteOrder(Order order)
+    +pay(Order order)
+    +cancelOrder(Order order)
+    +addToCart(Commodity commodity)
+    +deleteFromCart(Commodity commodity)
+    +addReview(Review review)
+    +startChat(Supplier supplier)
+}
+
+class Supplier {
+    -shopName: String
+    -contact: String
+    -commodities: List<Commodity>
+    -deliveryInfos: List<DeliveryInfo>
+    -advertisements: List<Advertisement>
+    -chats: List<Chat>
+    -reviews: List<Review>
+
+    +addCommodity(Commodity commodity)
+    +editCommodity(Commodity commodity)
+    +editDeliveryInfo(DeliveryInfo deliveryInfo)
+    +editAdvertisement(Advertisement advertisement)
+    +editCoupon(Coupon coupon)
+    +viewReviews()
+    +respondChat(Chat chat)
+}
+
+class Shop{
+    -commodities: List<Commodity>
+    -suppliers: List<Supplier>
+    -customers: List<Customer>
+    -orders: List<Order>
+    -coupons: List<Coupon>
+    -advertisements: List<Advertisement>
+    -payments: List<Payment>
+    -reviews: List<Review>
+    -categories: List<String>
+    -tags: List<String>
+    -webContent: List<String>
+    -systemLogs: List<String>
+    -dataReports: List<String>
+    -orderReports: List<String>
+    -announcements: List<String>
+    -activeAds: List<Advertisement>
+    -data: List<String>
+    -logs: List<String>
+    -monitoring: List<String>
+}
+
+class Commodity {
+    -commodityID: int
+    -name: String
+    -sku: String
+    -description: String
+    -price: double
+    -category: String
+    -supplier: Supplier
+    -quantity: int
+    -images: List<String>
+    -tags: List<String>
+    -reviews: List<Review>
+    -coupons: List<Coupon>
+    -averageRating: double
+
+    +updateQuantity(int quantity): void
+    +updatePrice(double price): void
+    +updateDescription(String description): void
+    +updateCategory(String category): void
+    +updateName(String name): void
+    +addReview(Review review): void
+    +applyCoupon(Coupon coupon): void
+    +getAverageRating(): double
+}
+
+class Order {
+    -orderID: int
+    -customer: Customer
+    -commodity: Commodity
+    -quantity: int
+    -totalPrice: double
+    -deliveryInfo: DeliveryInfo
+    -status: String
+    -payment: Payment
+
+    +updateOrderStatus(status: String): void
+    +viewOrderItems(): void
+}
+
+class OrderItem {
+    -orderItemID: int
+    -orderID: int
+    -productID: int
+    -quantity: int
+    -price: double
+    -totalPrice: double
+}
+
+class Advertisement {
+    -adID: int
+    -title: String
+    -content: String
+    -startDate: Date
+    -endDate: Date
+    -targetURL: String
+    -isActive: boolean
+
+    +activateAd(): void
+    +deactivateAd(): void
+    +getAdDuration(): int
+    +isAdActive(): boolean
+}
+
+class Coupon{
+    -couponId: int
+    -couponCode: String
+    -description: String
+    -discountType: String
+    -discountValue: double
+    -applicableCategories: List<String>
+    -applicableCommodities: List<Commodity>
+    -applicableSuppliers: List<Supplier>
+    -applicableCustomers: List<Customer>
+    -minimumOrderValue: double
+    -startDate: Date
+    -endDate: Date
+    -isActive: boolean
+    -usedcount: int
+    -usedlimit: int
+
+    +validateCoupon(): boolean
+    +activateCoupon(): void
+    +deactivateCoupon(): void
+    +isCouponActive(): boolean    
+}
+
+class DeliveryInfo {
+    -deliveryInfoID: int
+    -deliveryTime: String
+    -deliveryFee: double
+    -serviceProvider: String
+
+    +updateDeliveryInfo(): void
+}
+
+class Address{
+    -addressID: int
+    -street: String
+    -city: String
+    -state: String
+    -zip: String
+    -country: String
+    -contact: String
+    -recipientName: String
+    -isDefault: boolean
+
+    +updateAddress(): void
+}
+
+class Payment {
+    -paymentID: int
+    -order: Order
+    -orderValue: double
+    -paymentMethod: String
+    -status: String
+    -createdAt: Date
+    -payerID: User
+    -payeeID: User
+    -currency: String
+    -transactionID: String
+    -transactionFee: double
+
+    +updatePaymentStatus(): void
+    +refundPayment(): void
+    +generatePaymentReport(): void
+}
+
+class Review {
+    -reviewID: int
+    -customerID: int
+    -commodityID: int
+    -rating: int
+    -comment: String
+    -createdAt: Date
+
+    +updateReview(): void
+}
+
+class Chat {
+    -chatID: int
+    -customer: Customer
+    -supplier: Supplier
+    -messages: ArrayList<Message>
+
+    +sendMessage(Message message)
+    +receiveMessage(Message message)
+    +viewChatHistory()
+    +getCostumer(): Customer
+    +getSupplier(): Supplier
+}
+
+class Message {
+    -messageID: int
+    -sender: User
+    -receiver: User
+    -content: String
+    -timestamp: Date
+
+    +getSender(): User
+    +getReceiver(): User
+    +updateContent()
+}
+
+User <|-- Administrator
+User <|-- Customer
+User <|-- Supplier
+
+Order "1" *-- "1" DeliveryInfo : has
+Order "1" *-- "1" Payment : processedBy
+Order "1" *-- "n" OrderItem : has
+OrderItem "1" *-- "1" Commodity : has
+DeliveryInfo "1" o-- "1" Address : uses
+
+Supplier "1" o-- "n" Commodity : sells
+Supplier "1" o-- "n" Chat : participatesIn
+Supplier "1" *-- "n" Shop : manages
+
+Customer "1" o-- "n" Commodity : addsToCart
+Customer "1" o-- "n" Order : adds
+Customer "1" o-- "n" Review : writes
+Customer "1" o-- "n" Chat : initiates
+Customer "1" o-- "n" Payment : makes
+Customer "1" o-- "n" DeliveryInfo : uses
+
+Commodity "1" o-- "n" Coupon : applies
+Commodity "1" o-- "n" Advertisement : isAdvertisedBy
+Commodity "1" o-- "n" Review : has
+
+Chat "1" *-- "n" Message : contains
+
+
+@enduml
