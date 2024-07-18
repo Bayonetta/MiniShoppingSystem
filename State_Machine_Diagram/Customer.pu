@@ -1,0 +1,44 @@
+@startuml
+state “Customer” as User {
+    [*] --> Authenticating
+    Authenticating : entry/requestLogin
+    Authenticating : do/validateLogin
+    Authenticating --> Browsing : loginSuccessful
+    Authenticating --> Authenticating : loginFailed
+    Browsing : entry/displayProducts
+    Browsing : do/clearSelection
+    Browsing --> AddingToCart : selectProduct
+    AddingToCart : entry/addToCart
+    AddingToCart : do/confirmAddition
+    AddingToCart --> Browsing : continueShopping
+    AddingToCart --> ReviewingCart : reviewCart
+    state ReviewingCart {
+        [*] --> ViewingCart
+        ViewingCart : entry/displayCartContents
+        ViewingCart : do/updateCartView
+        ViewingCart --> ModifyingCart : modifyCart
+        ModifyingCart : do/updateCart
+        ModifyingCart --> ViewingCart : saveChanges
+        ModifyingCart --> [*]
+    }
+    ReviewingCart --> ProceedingToCheckout : proceedToCheckout
+    state ProceedingToCheckout {
+        [*] --> EnteringAddress
+        EnteringAddress : entry/selectAdress
+        EnteringAddress : do/saveAddress
+        EnteringAddress --> EnteringAddress : invalidAdress
+        EnteringAddress --> EnteringPaymentMethod : enterPaymentInfo
+        EnteringPaymentMethod : entry/selectPaymentMethod
+        EnteringPaymentMethod : do/savePaymentInfo
+        EnteringPaymentMethod --> EnteringPaymentMethod : invalidPaymentMethod
+        EnteringPaymentMethod --> [*] : InformationPlaced
+    }
+    ProceedingToCheckout --> ConfirmingOrder : confirmOrder
+    ConfirmingOrder : entry/displayOrderSummary
+    ConfirmingOrder : do/submitOrder
+    ConfirmingOrder --> ProceedingToCheckout: modifyCheckoutInfo
+    ConfirmingOrder --> ModifyingCart: modifyCart
+    ConfirmingOrder --> Browsing : continueShopping
+    ConfirmingOrder --> [*]
+}
+@enduml

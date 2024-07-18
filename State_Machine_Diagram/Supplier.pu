@@ -1,0 +1,22 @@
+@startuml
+state “Supplier” as Supplier {
+    [*] --> Authenticating
+    Authenticating : entry/requestLogin
+    Authenticating : do/validateLogin
+    Authenticating --> SelectingAction
+    Authenticating --> Authenticating : loginFailed
+    ManagingCommodities : do/viewSupplierCommodities
+    ManagingCommodities : do/updateSupplierCommodities
+    ManagingCommodities : do/addCommodity
+    ManagingCommodities : do/editCommodity
+    SelectingAction : do/selectAction
+    SelectingAction --> ManagingDeliveryInfo : manageDeliveryInfo
+    ManagingDeliveryInfo : entry/viewDeliveryInfo
+    ManagingDeliveryInfo : do/saveDeliveryChanges
+    ManagingDeliveryInfo : do/editDeliveryInfo
+    SelectingAction --> [*]
+    SelectingAction --> ManagingCommodities : manageCommodities
+    ManagingCommodities --> SelectingAction
+    ManagingDeliveryInfo --> SelectingAction
+}
+@enduml
