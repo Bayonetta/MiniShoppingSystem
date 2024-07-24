@@ -12,7 +12,6 @@ package "User" {
     }
 }
 
-
 package "Admin" {
     class Administrator extends User.User {
         -adminID: int
@@ -36,7 +35,6 @@ package "Admin" {
         +deleteSupplierAccount()
         +setSupplierPermissions()
     }
-  
     
     class WebServiceManager {
         +editContent(): void
@@ -63,6 +61,8 @@ package "Admin" {
 
 package "Commodity Management" {  
     class CommodityManager {
+        -commodities: List<Commodity>
+
         +addCommodity(Commodity commodity): void
         +editCommodity(Commodity commodity): void
         +deleteCommodity(Commodity commodity): void
@@ -154,7 +154,7 @@ package "Supplier Management" {
 
 package "Order Management" {
     class OrderManager {
-        +viewOrders(): void
+        -orders: List<Order>
         +processOrders(Order order): void
         +trackOrderStatus(Order order): void
         +generateOrderReports(): void
