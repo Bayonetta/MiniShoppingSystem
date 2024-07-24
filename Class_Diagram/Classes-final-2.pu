@@ -1,355 +1,280 @@
 @startuml
 
-/'Interfaces'/
-
-interface UserAccountManageable {
-    +createUserAccount()
-    +editUserAccount()
-    +deleteUserAccount()
-    +setUserPermissions()
-    +monitorUserActivity()
-    +manageUserGroups()
+package "User" {
+    abstract class User {
+        -userID: int
+        -name: String
+        -email: String
+        -password: String
+        -contact: String
+        -address: String
+        +updateProfile()
+    }
 }
 
 
-/'User Data Structure'/
+package "Admin" {
+    class Administrator extends User.User {
+        -adminID: int
+        -permissions: List<String>
+        -activityLogs: List<String>
+        -userGroups: List<String>
+    }
 
-abstract class User {
-    -userID: int
-    -name: String
-    -email: String
-    -password: String
-    -contact: String
-    -address: String
-    +updateProfile()
+    class CustomerManager {
+        -customers: List<Customer>
+        +createCustomerAccount()
+        +editCustomerAccount()
+        +deleteCustomerAccount()
+        +setCustomerPermissions()
+    }
+    
+    class SupplierManager {
+        -suppliers: List<Supplier>
+        +createSupplierAccount()
+        +editSupplierAccount()
+        +deleteSupplierAccount()
+        +setSupplierPermissions()
+    }
+    
+    class CommodityManager {
+        +addCommodity(Commodity commodity): void
+        +editCommodity(Commodity commodity): void
+        +deleteCommodity(Commodity commodity): void
+        +manageCommodityCategories(List<String> categories): void
+    }
+    
+    class OrderManager {
+        +viewOrders(): void
+        +processOrders(Order order): void
+        +trackOrderStatus(Order order): void
+        +generateOrderReports(): void
+        +manageReviews(Review review): void
+        +managePayments(Payment payment): void
+        +managePromotions(Advertisement advertisement): void
+    }
+    
+    class WebServiceManager {
+        +editContent(): void
+        +manageAnnouncements(): void
+        +manageAdvertisements(): void
+        +setSEO(): void
+    }
+    
+    class SystemManager {
+        +setSecurity()
+        +viewLogs()
+        +monitorSystem()
+        +backupData()
+        +restoreData()
+        +generateDataReports()
+        +viewDataReports()
+    }
+
+    Administrator "1" *- "1"  WebServiceManager : manages
+    Administrator "1" *- "1" SystemManager : manages
+    Administrator "1" *-- "1" SupplierManager : manages
+    Administrator "1" *-- "1" CustomerManager : manages
+    Administrator "1" *-- "1" CommodityManager : manages
+    Administrator "1" *-- "1" OrderManager : manages
 }
 
-class Administrator implements UserAccountManageable {
-    -adminID: int
-    -permissions: List<String>
-    -activityLogs: List<String>
-    -userGroups: List<String>
+package "Commodity Management" {
+    class Commodity {
+        -commodityID: int
+        -name: String
+        -sku: String
+        -description: String
+        -price: double
+        -category: String
+        -supplier: Supplier
+        -quantity: int
+        -images: List<String>
+        -tags: List<String>
+        -reviews: List<Review>
+        -averageRating: double
+    
+        +addReview(Review review): void
+        +getAverageRating(): double
+        +updateQuantity(int quantity): void
+        +updatePrice(double price): void
+        +updateDescription(String description): void
+        +updateCategory(String category): void
+        +updateName(String name): void
+    }
+    class Advertisement {
+        -adID: int
+        -title: String
+        -content: String
+        -startDate: Date
+        -endDate: Date
+        -targetURL: String
+        -isActive: boolean
+    
+        +activateAd(): void
+        +deactivateAd(): void
+        +getAdDuration(): int
+        +isAdActive(): boolean
+    }
 }
 
-class Customer {
-    -cart: Cart
-    -orders: ArrayList<Order>
-    -reviews: ArrayList<Review>
-    -coupons: ArrayList<Coupon>
-    -chat: ArrayList<Chat>
-    -payment: ArrayList<Payment>
-    -deliveryInfo: ArrayList<DeliveryInfo>
-    -notifications: ArrayList<Notification>
+package "Supplier Management" {
+    class Supplier extends User.User {
+        -shopName: String
+        -contact: String
+    }
+    class Shop {
+        -shopID: int
+        -name: String
+        -address: String
+        -contact: String
+        -description: String
+        -rating: double
+        -reviews: List<Review>
+        -commodities: List<Commodity>
+        -advertisements: List<Advertisement>
+    }
 
-    +addOrder(Order order)
-    +deleteOrder(Order order)
-    +pay(Order order)
-    +cancelOrder(Order order)
-    +addReview(Review review)
-    +startChat(Supplier supplier)
+    Shop *-- "0..*" Commodity : sells
+    Shop *-- "0..*" Advertisement : publishes
+
+    Supplier *-- "0..*" Shop : owns
 }
 
-class Supplier {
-    -shopName: String
-    -contact: String
-    -commodities: List<Commodity>
-    -deliveryInfos: List<DeliveryInfo>
-    -advertisements: List<Advertisement>
-    -chats: List<Chat>
-    -reviews: List<Review>
+package "Order Management" {
+    class Order {
+        -orderInfo: OrderInfo
+        -deliveryInfo: DeliveryInfo
+        -status: String
+        -payment: Payment
+    }
+    
+    class OrderInfo {
+        -orderInfoID: int
+        -customer: Customer
+        -commodity: Commodity
+        -quantity: int
+        -totalPrice: double
+    }
+    
+    class DeliveryInfo {
+        -deliveryID: int
+        -address: Address
+        -deliveryStatus: String
+        -deliveryDate: Date
+        -deliveryTime: String
+        -deliveryType: String
+        -deliveryCost: double
+    
+        +updateDeliveryStatus(): void
+        +updateDeliveryDate(): void
+        +updateDeliveryTime(): void
+        +updateDeliveryType(): void
+        +updateDeliveryCost(): void
+    }
 
-    +addCommodity(Commodity commodity)
-    +editCommodity(Commodity commodity)
-    +editDeliveryInfo(DeliveryInfo deliveryInfo)
-    +editAdvertisement(Advertisement advertisement)
-    +editCoupon(Coupon coupon)
-    +viewReviews()
-    +respondChat(Chat chat)
+    class Payment {
+        -paymentID: int
+        -paymentMethod: String
+        -paymentStatus: String
+        -paymentDate: Date
+        -paymentAmount: double
+    
+        +updatePaymentStatus(): void
+        +updatePaymentDate(): void
+        +updatePaymentAmount(): void
+    }
+
+    class Address {
+        -addressID: int
+        -street: String
+        -city: String
+        -state: String
+        -zip: String
+        -country: String
+        -contact: String
+        -recipientName: String
+        -isDefault: boolean
+
+        +updateAddress(): void
+    }
+
+    Order "1" *-- "1" OrderInfo : has
+    Order "1" *-- "1" DeliveryInfo : has
+    Order "1" *-- "1" Payment : has
+    DeliveryInfo "1" *-- "1" Address : has
+    OrderManager "1" *-- "n" Order : manages
 }
 
-/'Other Models'/
+package "Customer Management" {
+    class Customer extends User.User {
+        -cart: Cart
+        -orders: List<Order>
+        -reviews: List<Review>
+    }
 
-class Shop {
-    -commodities: List<Commodity>
-    -suppliers: List<Supplier>
-    -customers: List<Customer>
-    -orders: List<Order>
-    -coupons: List<Coupon>
-    -advertisements: List<Advertisement>
-    -payments: List<Payment>
-    -reviews: List<Review>
-    -categories: List<String>
-    -tags: List<String>
-    -webContent: List<String>
-    -systemLogs: List<String>
-    -dataReports: List<String>
-    -orderReports: List<String>
-    -announcements: List<String>
-    -activeAds: List<Advertisement>
-    -data: List<String>
-    -logs: List<String>
-    -monitoring: List<String>
+    class Review {
+        -reviewID: int
+        -commodity: Commodity
+        -rating: int
+        -content: String
+        -timestamp: Date
+
+        +updateRating()
+        +updateContent()
+    }
+
+    class Cart {
+        -cartID: int
+        -orderInfo: OrderInfo
+        -commodities: List<Commodity>
+
+        +addCommodity(Commodity commodity)
+        +deleteCommodity(Commodity commodity)
+        +updateTotalPrice()
+    }
+
+    Customer --> "0..*" Review : writes
+    Customer --> "Commodity" : views
+    CustomerManager "1" *-- "n" Customer : manages
+
+    Commodity "1" *-- "0..*" Review : has
+
+    Commodity "n" --> "1" Cart : added to
+    Cart "1" -> Order : checkout
 }
 
-class Commodity{
-    -commodityID: int
-    -name: String
-    -sku: String
-    -description: String
-    -price: double
-    -category: String
-    -supplier: Supplier
-    -quantity: int
-    -images: List<String>
-    -tags: List<String>
-    -reviews: List<Review>
-    -coupons: List<Coupon>
-    -averageRating: double
+package "Chat Management" {
+    class Message {
+        -messageID: int
+        -sender: User
+        -receiver: User
+        -content: String
+        -timestamp: Date
 
-    +addReview(Review review): void
-    +applyCoupon(Coupon coupon): void
-    +getAverageRating(): double
-    +updateQuantity(int quantity): void
-    +updatePrice(double price): void
-    +updateDescription(String description): void
-    +updateCategory(String category): void
-    +updateName(String name): void
-}
+        +getSender(): User
+        +getReceiver(): User
+        +updateContent()
+    }
 
-class OrderInfo {
-    -orderInfoID: int
-    -customer: Customer
-    -commodity: Commodity
-    -quantity: int
-    -totalPrice: double
-}
+    class Chat {
+        -chatID: int
+        -customer: Customer
+        -supplier: Supplier
+        -messages: ArrayList<Message>
 
-class OrderManager {
-    +updateOrderStatus(order: Order, status: String): void
-    +viewOrderItems(order: Order): void
-}
+        +sendMessage(Message message)
+        +receiveMessage(Message message)
+        +viewChatHistory()
+    }
 
-class Order {
-    -orderInfo: OrderInfo
-    -deliveryInfo: DeliveryInfo
-    -status: String
-    -payment: Payment
-}
-
-class Cart {
-    -cartID: int
-    -orderInfo: OrderInfo
-    -commodities: List<Commodity>
-
-    +addCommodity(Commodity commodity)
-    +deleteCommodity(Commodity commodity)
-    +updateTotalPrice()
-}
-
-class Advertisement {
-    -adID: int
-    -title: String
-    -content: String
-    -startDate: Date
-    -endDate: Date
-    -targetURL: String
-    -isActive: boolean
-
-    +activateAd(): void
-    +deactivateAd(): void
-    +getAdDuration(): int
-    +isAdActive(): boolean
-}
-
-class Coupon {
-    -couponID: int
-    -couponCode: String
-    -description: String
-    -discountType: String
-    -discountValue: double
-    -applicableCategories: List<String>
-    -applicableCommodities: List<Commodity>
-    -applicableSuppliers: List<Supplier>
-    -applicableCustomers: List<Customer>
-    -minimumOrderValue: double
-    -startDate: Date
-    -endDate: Date
-    -isActive: boolean
-    -usedCount: int
-    -usedLimit: int
-
-    +validateCoupon(): boolean
-    +activateCoupon(): void
-    +deactivateCoupon(): void
-    +isCouponActive(): boolean
-}
-
-class DeliveryInfo {
-    -deliveryInfoID: int
-    -deliveryTime: String
-    -deliveryFee: double
-    -serviceProvider: String
-
-    +updateDeliveryInfo(): void
-}
-
-class Address {
-    -addressID: int
-    -street: String
-    -city: String
-    -state: String
-    -zip: String
-    -country: String
-    -contact: String
-    -recipientName: String
-    -isDefault: boolean
-
-    +updateAddress(): void
-}
-
-class Payment {
-    -paymentID: int
-    -order: Order
-    -orderValue: double
-    -paymentMethod: String
-    -status: String
-    -createdAt: Date
-    -payerID: User
-    -payeeID: User
-    -currency: String
-    -transactionID: String
-    -transactionFee: double
-
-    +updatePaymentStatus(): void
-    +refundPayment(): void
-    +generatePaymentReport(): void
-}
-
-class Review {
-    -reviewID: int
-    -customerID: int
-    -commodityID: int
-    -rating: int
-    -comment: String
-    -createdAt: Date
-
-    +updateReview(): void
+    Chat "1" --> "0..*" Message : contains
+    Chat --> Customer : involves
+    Chat --> Supplier : involves
 }
 
 
-class Message {
-    -messageID: int
-    -sender: User
-    -receiver: User
-    -content: String
-    -timestamp: Date
-
-    +getSender(): User
-    +getReceiver(): User
-    +updateContent()
-}
-
-/'All Managers'/
-
-class CustomerManager implements UserAccountManageable {
-    -customers: List<Customer>
-}
-
-class SupplierManager implements UserAccountManageable {
-    -suppliers: List<Supplier>
-}
-
-class CommodityManager {
-    +addCommodity(Commodity commodity): void
-    +editCommodity(Commodity commodity): void
-    +deleteCommodity(Commodity commodity): void
-    +manageCommodityCategories(List<String> categories): void
-}
-
-class OrderManager {
-    +viewOrders(): void
-    +processOrders(Order order): void
-    +trackOrderStatus(Order order): void
-    +generateOrderReports(): void
-    +manageReviews(Review review): void
-    +managePayments(Payment payment): void
-    +createCoupons(Coupon coupon): void
-    +managePromotions(Advertisement advertisement): void
-}
-
-class WebServiceManager {
-    +editContent(): void
-    +manageAnnouncements(): void
-    +manageAdvertisements(): void
-    +setSEO(): void
-}
-
-class SystemManager {
-    +setSecurity()
-    +viewLogs()
-    +monitorSystem()
-    +backupData()
-    +restoreData()
-    +generateDataReports()
-    +viewDataReports()
-}
-
-class ChatManager {
-    -chatID: int
-    -customer: Customer
-    -supplier: Supplier
-    -messages: ArrayList<Message>
-
-    +sendMessage(Message message)
-    +receiveMessage(Message message)
-    +viewChatHistory()
-    +getCustomer(): Customer
-    +getSupplier(): Supplier
-}
-
-/'Relations'/
-
-User <|-- Administrator
-User <|-- Customer
-User <|-- Supplier
-
-
-Administrator "1" o-- "1" CustomerManager : manages
-Administrator "1" o-- "1" SupplierManager : manages
-Administrator "1" o-- "1" CommodityManager : manages
-Administrator "1" o-- "1" OrderManager : manages
-Administrator "1" o-- "1" WebServiceManager : manages
-Administrator "1" o-- "1" SystemManager : manages
-
-SupplierManager "1" *-- "n" Supplier : manages
-CustomerManager "1" *-- "n" Customer : manages
-OrderManager "1" *-- "n" Order : manages
 CommodityManager "1" *-- "n" Commodity : manages
-
-Order "1" *-- "1" DeliveryInfo : has
-Order "1" *-- "1" Payment : processedBy
-Order "1" o-- "1" OrderInfo : references
-OrderInfo "1" *-- "1" Commodity : has
-DeliveryInfo "1" o-- "1" Address : uses
-
-Supplier "1" o-- "n" Commodity : sells
-Supplier "1" o-- "n" ChatManager : participatesIn
-Supplier "1" *-- "n" Shop : manages
-Shop "1" o-- "n" Commodity : has
-
-Customer "1" o-- "n" Commodity : addsToCart
-Customer "1" o-- "n" Order : adds
-Customer "1" o-- "n" Review : writes
-Customer "1" o-- "n" ChatManager : initiates
-Customer "1" o-- "n" Payment : makes
-Customer "1" o-- "n" DeliveryInfo : uses
-
-Commodity "1" o-- "n" Coupon : applies
-Commodity "1" o-- "n" Advertisement : isAdvertisedBy
-Commodity "1" o-- "n" Review : has
-
-ChatManager "1" *-- "n" Message : contains
-
-Cart "1" o-- "1" OrderInfo : references
+SupplierManager "1" *-- "n" Supplier : manages
 
 @enduml
