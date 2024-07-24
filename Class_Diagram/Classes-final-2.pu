@@ -36,23 +36,7 @@ package "Admin" {
         +deleteSupplierAccount()
         +setSupplierPermissions()
     }
-    
-    class CommodityManager {
-        +addCommodity(Commodity commodity): void
-        +editCommodity(Commodity commodity): void
-        +deleteCommodity(Commodity commodity): void
-        +manageCommodityCategories(List<String> categories): void
-    }
-    
-    class OrderManager {
-        +viewOrders(): void
-        +processOrders(Order order): void
-        +trackOrderStatus(Order order): void
-        +generateOrderReports(): void
-        +manageReviews(Review review): void
-        +managePayments(Payment payment): void
-        +managePromotions(Advertisement advertisement): void
-    }
+  
     
     class WebServiceManager {
         +editContent(): void
@@ -71,15 +55,20 @@ package "Admin" {
         +viewDataReports()
     }
 
-    Administrator "1" *- "1"  WebServiceManager : manages
-    Administrator "1" *- "1" SystemManager : manages
+    Administrator "1" *- "1" SystemManager : controls
     Administrator "1" *-- "1" SupplierManager : manages
+    Administrator "1" *-- "1"  WebServiceManager : controls
     Administrator "1" *-- "1" CustomerManager : manages
-    Administrator "1" *-- "1" CommodityManager : manages
-    Administrator "1" *-- "1" OrderManager : manages
 }
 
-package "Commodity Management" {
+package "Commodity Management" {  
+    class CommodityManager {
+        +addCommodity(Commodity commodity): void
+        +editCommodity(Commodity commodity): void
+        +deleteCommodity(Commodity commodity): void
+        +manageCommodityCategories(List<String> categories): void
+    }
+
     class Commodity {
         -commodityID: int
         -name: String
@@ -102,20 +91,10 @@ package "Commodity Management" {
         +updateCategory(String category): void
         +updateName(String name): void
     }
-    class Advertisement {
-        -adID: int
-        -title: String
-        -content: String
-        -startDate: Date
-        -endDate: Date
-        -targetURL: String
-        -isActive: boolean
-    
-        +activateAd(): void
-        +deactivateAd(): void
-        +getAdDuration(): int
-        +isAdActive(): boolean
-    }
+
+    Administrator o-- CommodityManager : has permission to control
+
+    CommodityManager "1" *-- "n" Commodity : manages
 }
 
 package "Supplier Management" {
@@ -135,13 +114,40 @@ package "Supplier Management" {
         -advertisements: List<Advertisement>
     }
 
-    Shop *-- "0..*" Commodity : sells
-    Shop *-- "0..*" Advertisement : publishes
+    class Advertisement {
+        -adID: int
+        -title: String
+        -content: String
+        -startDate: Date
+        -endDate: Date
+        -targetURL: String
+        -isActive: boolean
+    
+        +activateAd(): void
+        +deactivateAd(): void
+        +getAdDuration(): int
+        +isAdActive(): boolean
+    }
 
-    Supplier *-- "0..*" Shop : owns
+    Shop "1" *-- "0..*" Commodity : sells
+    Shop "1" *-- "0..*" Advertisement : publishes
+
+    Supplier "1" *-- "1" CommodityManager : manages
+    Supplier "1" *-- "0..*" Shop : owns
+
+    SupplierManager "1" *-- "n" Supplier : manages
 }
 
 package "Order Management" {
+    class OrderManager {
+        +viewOrders(): void
+        +processOrders(Order order): void
+        +trackOrderStatus(Order order): void
+        +generateOrderReports(): void
+        +manageReviews(Review review): void
+        +managePayments(Payment payment): void
+    }
+
     class Order {
         -orderInfo: OrderInfo
         -deliveryInfo: DeliveryInfo
@@ -203,7 +209,9 @@ package "Order Management" {
     Order "1" *-- "1" DeliveryInfo : has
     Order "1" *-- "1" Payment : has
     DeliveryInfo "1" *-- "1" Address : has
-    OrderManager "1" *-- "n" Order : manages
+    OrderManager "1" *-- "0..*" Order : manages
+    Administrator o-- OrderManager : has permission to control
+    Supplier o-- OrderManager : has permission to control
 }
 
 package "Customer Management" {
@@ -234,14 +242,14 @@ package "Customer Management" {
         +updateTotalPrice()
     }
 
-    Customer --> "0..*" Review : writes
-    Customer --> "Commodity" : views
+    Customer --> Review : writes
+    Customer --> Commodity : views
+    Customer "1" *-- "1" Cart : owns
     CustomerManager "1" *-- "n" Customer : manages
 
     Commodity "1" *-- "0..*" Review : has
-
     Commodity "n" --> "1" Cart : added to
-    Cart "1" -> Order : checkout
+    Cart  --> OrderManager : checkout
 }
 
 package "Chat Management" {
@@ -273,8 +281,5 @@ package "Chat Management" {
     Chat --> Supplier : involves
 }
 
-
-CommodityManager "1" *-- "n" Commodity : manages
-SupplierManager "1" *-- "n" Supplier : manages
 
 @enduml
