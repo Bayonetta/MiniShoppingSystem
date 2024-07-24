@@ -92,9 +92,22 @@ package "Commodity Management" {
         +updateName(String name): void
     }
 
+
+    class Review {
+        -reviewID: int
+        -commodity: Commodity
+        -rating: int
+        -content: String
+        -timestamp: Date
+
+        +updateRating()
+        +updateContent()
+    }
+
     Administrator o-- CommodityManager : has permission to control
 
     CommodityManager "1" *-- "n" Commodity : manages
+    Commodity "1" *-- "0..*" Review : has
 }
 
 package "Supplier Management" {
@@ -102,6 +115,7 @@ package "Supplier Management" {
         -shopName: String
         -contact: String
     }
+
     class Shop {
         -shopID: int
         -name: String
@@ -152,7 +166,7 @@ package "Order Management" {
         -orderInfo: OrderInfo
         -deliveryInfo: DeliveryInfo
         -status: String
-        -payment: Payment
+        -paymentInfo: PaymentInfo
     }
     
     class OrderInfo {
@@ -179,7 +193,7 @@ package "Order Management" {
         +updateDeliveryCost(): void
     }
 
-    class Payment {
+    class PaymentInfo {
         -paymentID: int
         -paymentMethod: String
         -paymentStatus: String
@@ -207,7 +221,7 @@ package "Order Management" {
 
     Order "1" *-- "1" OrderInfo : has
     Order "1" *-- "1" DeliveryInfo : has
-    Order "1" *-- "1" Payment : has
+    Order "1" *-- "1" PaymentInfo : has
     DeliveryInfo "1" *-- "1" Address : has
     OrderManager "1" *-- "0..*" Order : manages
     Administrator o-- OrderManager : has permission to control
@@ -221,20 +235,9 @@ package "Customer Management" {
         -reviews: List<Review>
     }
 
-    class Review {
-        -reviewID: int
-        -commodity: Commodity
-        -rating: int
-        -content: String
-        -timestamp: Date
-
-        +updateRating()
-        +updateContent()
-    }
-
     class Cart {
         -cartID: int
-        -orderInfo: OrderInfo
+        -order: Order
         -commodities: List<Commodity>
 
         +addCommodity(Commodity commodity)
@@ -242,14 +245,20 @@ package "Customer Management" {
         +updateTotalPrice()
     }
 
-    Customer --> Review : writes
+    class Payment {
+        -paymentMethod: String
+        +payForOrder(Order order)
+    }
+
+    Customer --> Review : writes & ammends
     Customer --> Commodity : views
-    Customer "1" *-- "1" Cart : owns
+    Customer "1" *- "1" Cart : owns
     CustomerManager "1" *-- "n" Customer : manages
 
-    Commodity "1" *-- "0..*" Review : has
     Commodity "n" --> "1" Cart : added to
-    Cart  --> OrderManager : checkout
+    Cart  --> OrderManager : pays for
+
+    Customer *-- Payment : chooses
 }
 
 package "Chat Management" {
